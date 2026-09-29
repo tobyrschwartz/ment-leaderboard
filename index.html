@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f6eb">
+  <meta name="description" content="A live revenue leaderboard for entrepreneurship class teams.">
+  <title>The Venture Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="The Venture Board home"><span class="brand-mark">V</span><span>VENTURE<br>BOARD</span></a>
+      <div class="live-label"><span class="live-dot"></span> CLASS LEADERBOARD <span class="term">· FALL 2026</span></div>
+      <button id="refresh" class="refresh" type="button" aria-label="Refresh leaderboard"><span aria-hidden="true">↻</span><span>Refresh</span></button>
+    </header>
+
+    <section class="intro" id="top">
+      <div class="intro-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> BUILT BY THE CLASS</p>
+        <h1>Good ideas<br>make <span>moves.</span></h1>
+        <p class="lede">A live look at the teams turning their ideas into revenue.</p>
+      </div>
+      <aside class="season-card" aria-label="Leaderboard summary">
+        <span class="season-kicker">THE RACE IS ON</span>
+        <span class="season-number" id="team-count">—</span>
+        <span class="season-caption">teams on the board</span>
+        <span class="season-doodle" aria-hidden="true">↗</span>
+      </aside>
+    </section>
+
+    <section class="leaders" aria-labelledby="leaders-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">AT THE FRONT</p><h2 id="leaders-title">The leaders</h2></div>
+        <p class="updated" id="updated">Loading the latest numbers…</p>
+      </div>
+      <div class="podium" id="podium" aria-live="polite"></div>
+    </section>
+
+    <section class="board" aria-labelledby="board-title">
+      <div class="board-heading">
+        <div><p class="eyebrow">EVERY TEAM, EVERY DOLLAR</p><h2 id="board-title">Full standings</h2></div>
+        <div class="controls">
+          <label class="select-wrap"><span class="sr-only">Rank by period</span><select id="period"><option value="total">All-time revenue</option></select></label>
+          <label class="search-wrap"><span class="sr-only">Search teams</span><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find a team" autocomplete="off"></label>
+        </div>
+      </div>
+      <div class="table-head" aria-hidden="true"><span>RANK</span><span>TEAM</span><span>WEEKLY PACE</span><span class="amount-label">REVENUE</span></div>
+      <div id="standings" class="standings" aria-live="polite"><div class="message">Loading leaderboard…</div></div>
+      <div id="error" class="error" role="status" hidden></div>
+    </section>
+
+    <footer><span class="footer-mark">V.</span><span>Ideas into action. Numbers updated from the class sheet.</span><span id="footer-date"></span></footer>
+  </main>
+</body>
+</html>

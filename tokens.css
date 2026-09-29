@@ -1,0 +1,17 @@
+:root {
+  --color-paper: oklch(97% 0.012 95);
+  --color-paper-2: oklch(94% 0.016 95);
+  --color-paper-3: oklch(91% 0.020 95);
+  --color-ink: oklch(20% 0.012 250);
+  --color-muted: oklch(48% 0.025 250);
+  --color-rule: oklch(20% 0.012 250 / 0.18);
+  --color-accent: oklch(86% 0.18 95);
+  --color-accent-2: oklch(66% 0.18 235);
+  --color-accent-3: oklch(68% 0.24 18);
+  --color-mint: oklch(80% 0.16 150);
+  --color-focus: oklch(48% 0.16 235);
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --dur-fast: 160ms;
+}

@@ -55,6 +55,23 @@
       <div id="error" class="error" role="status" hidden></div>
     </section>
 
+    <section class="insights" aria-labelledby="insights-title">
+      <div class="insights-heading">
+        <div><p class="eyebrow">BEYOND THE SALE</p><h2 id="insights-title">Team insights</h2><p class="insights-note">Cumulative totals since the start of the semester.</p></div>
+        <label class="select-wrap insights-select"><span class="sr-only">Choose a team for insights</span><select id="insight-team" aria-label="Choose a team for insights"></select></label>
+      </div>
+      <div class="insights-grid">
+        <section class="insight-card" aria-labelledby="shopify-title">
+          <div class="insight-card-heading"><span class="insight-icon" aria-hidden="true">↗</span><div><p class="eyebrow">STORE PERFORMANCE</p><h3 id="shopify-title">Shopify</h3></div></div>
+          <dl id="shopify-metrics" class="metric-grid"></dl>
+        </section>
+        <section class="insight-card social-card" aria-labelledby="social-title">
+          <div class="insight-card-heading"><span class="insight-icon" aria-hidden="true">✳</span><div><p class="eyebrow">AUDIENCE ENGAGEMENT</p><h3 id="social-title">Socials</h3></div></div>
+          <dl id="social-metrics" class="metric-grid"></dl>
+        </section>
+      </div>
+    </section>
+
     <footer><span class="footer-mark">V.</span><span>Ideas into action. Numbers updated from the class sheet. Ask the TA for link.</span><span id="footer-date"></span></footer>
   </main>
 </body>

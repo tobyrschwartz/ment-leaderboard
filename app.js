@@ -1,8 +1,10 @@
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9dN-T2Almg8DbAnZRm4Lh_X-Vmt9QYKwoplJtIYIkpWM4BSmR1o7gLWdX-c7Rp198KOnQprih5K6/pub?gid=1660851265&single=true&output=csv";
 
 const $ = (selector) => document.querySelector(selector);
-const state = { teams: [], weeks: [], activePeriod: "total", currentWeekPosition: -1 };
+const state = { teams: [], weeks: [], activePeriod: "total", currentWeekPosition: -1, insightTeam: "" };
 const money = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value || 0);
+const count = (value) => value === null ? "—" : new Intl.NumberFormat("en-US").format(value);
+const METRICS = ["Shopify Sessions", "Shopify Orders", "Shopify Top Traffic Source", "Shopify Conversion Rate", "Social Views", "Social Likes", "Social Comments", "Social Shares"];
 
 function parseCSV(text) {
   const rows = [];
@@ -32,6 +34,7 @@ function parseAmount(value) {
 
 function loadRows(rows) {
   const headers = rows.shift().map((header) => header.trim());
+  const metricIndexes = Object.fromEntries(METRICS.map((name) => [name, headers.findIndex((header) => header.toLowerCase() === name.toLowerCase())]));
   const groupIndex = headers.findIndex((header) => header.toLowerCase() === "group name");
   const totalIndex = headers.findIndex((header) => header.toLowerCase() === "total revenue");
   if (groupIndex < 0) throw new Error("The published CSV needs a “Group Name” column.");
@@ -41,7 +44,8 @@ function loadRows(rows) {
   state.teams = rows.map((cells, order) => {
     const weeks = weekIndexes.map(({ index }) => parseAmount(cells[index] || ""));
     const weeklySum = weeks.reduce((sum, value) => sum + (value ?? 0), 0);
-    return { name: (cells[groupIndex] || "").trim(), order, weeks, total: parseAmount(cells[totalIndex] || "") ?? weeklySum };
+    const metrics = Object.fromEntries(METRICS.map((name) => [name, (cells[metricIndexes[name]] || "").trim()]));
+    return { name: (cells[groupIndex] || "").trim(), order, weeks, total: parseAmount(cells[totalIndex] || "") ?? weeklySum, metrics };
   }).filter((team) => team.name);
   const activeWeek = [...weekIndexes].reverse().find(({ index }) => rows.some((cells) => parseAmount(cells[index] || "") !== null));
   state.currentWeekPosition = activeWeek ? weekIndexes.findIndex((week) => week.index === activeWeek.index) : -1;
@@ -54,6 +58,10 @@ function loadRows(rows) {
   $("#updated").textContent = activeWeek ? `Showing ${activeWeek.header.replace(/\s+Revenue$/i, "")} · refreshed just now` : "No weekly revenue entered yet";
   $("#footer-date").textContent = `Updated ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date())}`;
   $("#error").hidden = true;
+  if (!state.teams.some((team) => team.name === state.insightTeam)) state.insightTeam = rankings()[0]?.name || "";
+  const insightSelect = $("#insight-team");
+  insightSelect.replaceChildren(...state.teams.map((team) => new Option(team.name, team.name)));
+  insightSelect.value = state.insightTeam;
   render();
 }
 
@@ -84,6 +92,7 @@ function render() {
   const max = Math.max(1, ...ranked.map((team) => team.value));
   const list = $("#standings");
   list.replaceChildren();
+  renderInsights();
   if (!visible.length) { list.innerHTML = '<div class="message">No teams match that search.</div>'; return; }
   visible.forEach((team) => {
     const rank = ranked.indexOf(team) + 1;
@@ -94,6 +103,35 @@ function render() {
     row.innerHTML = `<span class="team-rank">${String(rank).padStart(2, "0")}</span><span class="team-name"></span><span class="team-week"><span class="bar-track"><span class="bar-fill" style="display:block;width:${Math.max(0, current / max * 100)}%"></span></span><span class="team-week-label">${money(current)}</span></span><span class="team-total">${money(team.value)}</span>`;
     row.querySelector(".team-name").textContent = team.name;
     list.append(row);
+  });
+}
+
+function renderInsights() {
+  const team = state.teams.find((item) => item.name === state.insightTeam);
+  const metric = (name) => team?.metrics[name] || "";
+  const number = (name) => {
+    const value = metric(name);
+    return value && /^\d[\d,]*$/.test(value) ? count(Number(value.replace(/,/g, ""))) : "—";
+  };
+  const text = (name) => metric(name) || "—";
+  const rate = metric("Shopify Conversion Rate");
+  const groups = [
+    ["#shopify-metrics", [["Sessions", number("Shopify Sessions")], ["Orders", number("Shopify Orders")], ["Top traffic source", text("Shopify Top Traffic Source")], ["Gross revenue", team ? money(team.total) : "—"], ["Conversion rate", rate ? (rate.includes("%") ? rate : `${rate}%`) : "—"]]],
+    ["#social-metrics", [["Views", number("Social Views")], ["Likes", number("Social Likes")], ["Comments", number("Social Comments")], ["Shares", number("Social Shares")]]]
+  ];
+  groups.forEach(([selector, entries]) => {
+    const list = $(selector);
+    list.replaceChildren();
+    entries.forEach(([label, value]) => {
+      const item = document.createElement("div");
+      item.className = "metric";
+      const term = document.createElement("dt");
+      term.textContent = label;
+      const description = document.createElement("dd");
+      description.textContent = value;
+      item.append(term, description);
+      list.append(item);
+    });
   });
 }
 
@@ -115,6 +153,7 @@ async function refresh() {
 
 $("#period").addEventListener("change", (event) => { state.activePeriod = event.target.value; render(); });
 $("#search").addEventListener("input", render);
+$("#insight-team").addEventListener("change", (event) => { state.insightTeam = event.target.value; renderInsights(); });
 $("#refresh").addEventListener("click", refresh);
 refresh();
 setInterval(refresh, 5 * 60 * 1000);

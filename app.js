@@ -113,11 +113,18 @@ function renderInsights() {
     const value = metric(name);
     return value && /^\d[\d,]*$/.test(value) ? count(Number(value.replace(/,/g, ""))) : "—";
   };
+  const social = (name) => {
+    const value = metric(name);
+    if (!value) return "—";
+    if (/^\d[\d,]*$/.test(value)) return count(Number(value.replace(/,/g, "")));
+    return value.replace(/(?:,\s*|\s+)(?=(?:TikTok|TicTok|Instagram|Saved to fav)\b)/gi, "\n")
+      .split("\n").map((part) => part.trim()).filter(Boolean).join("\n");
+  };
   const text = (name) => metric(name) || "—";
   const rate = metric("Shopify Conversion Rate");
   const groups = [
     ["#shopify-metrics", [["Sessions", number("Shopify Sessions")], ["Orders", number("Shopify Orders")], ["Top traffic source", text("Shopify Top Traffic Source")], ["Gross revenue", team ? money(team.total) : "—"], ["Conversion rate", rate ? (rate.includes("%") ? rate : `${rate}%`) : "—"]]],
-    ["#social-metrics", [["Views", number("Social Views")], ["Likes", number("Social Likes")], ["Comments", number("Social Comments")], ["Shares", number("Social Shares")]]]
+    ["#social-metrics", [["Views", social("Social Views")], ["Likes", social("Social Likes")], ["Comments", social("Social Comments")], ["Shares", social("Social Shares")]]]
   ];
   groups.forEach(([selector, entries]) => {
     const list = $(selector);

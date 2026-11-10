@@ -88,6 +88,7 @@ h2 { margin: 0; font: 800 30px/1.1 var(--font-display); letter-spacing: -.045em;
 .metric dt { color: var(--color-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
 .social-card .metric dt { color: oklch(82% .01 95); }
 .metric dd { margin: 6px 0 0; font: 800 clamp(17px, 2.3vw, 25px)/1.15 var(--font-display); letter-spacing: -.035em; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.social-card .metric dd { white-space: pre-line; font-size: clamp(15px, 1.8vw, 21px); line-height: 1.4; }
 footer { display: flex; align-items: center; gap: 12px; min-height: 78px; margin-top: 22px; border-top: 1px solid var(--color-rule); color: var(--color-muted); font-size: 11px; }
 .footer-mark { color: var(--color-ink); font: 800 18px var(--font-display); }
 footer #footer-date { margin-left: auto; font-variant-numeric: tabular-nums; }

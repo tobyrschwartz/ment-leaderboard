@@ -33,6 +33,7 @@ function parseAmount(value) {
 }
 
 function loadRows(rows) {
+  const selectedPeriod = state.teams.length ? state.activePeriod : null;
   const headers = rows.shift().map((header) => header.trim());
   const metricIndexes = Object.fromEntries(METRICS.map((name) => [name, headers.findIndex((header) => header.toLowerCase() === name.toLowerCase())]));
   const groupIndex = headers.findIndex((header) => header.toLowerCase() === "group name");
@@ -49,13 +50,14 @@ function loadRows(rows) {
   }).filter((team) => team.name);
   const activeWeek = [...weekIndexes].reverse().find(({ index }) => rows.some((cells) => parseAmount(cells[index] || "") !== null));
   state.currentWeekPosition = activeWeek ? weekIndexes.findIndex((week) => week.index === activeWeek.index) : -1;
-  state.activePeriod = activeWeek ? String(activeWeek.index) : "total";
+  state.activePeriod = selectedPeriod && (selectedPeriod === "total" || weekIndexes.some(({ index }) => String(index) === selectedPeriod))
+    ? selectedPeriod : activeWeek ? String(activeWeek.index) : "total";
   const period = $("#period");
   period.replaceChildren(new Option("All-time revenue", "total"));
   weekIndexes.forEach(({ header, index }) => period.add(new Option(header.replace(/^Week\s*/i, ""), String(index))));
   period.value = state.activePeriod;
   $("#team-count").textContent = String(state.teams.length).padStart(2, "0");
-  $("#updated").textContent = activeWeek ? `Showing ${activeWeek.header.replace(/\s+Revenue$/i, "")} · refreshed just now` : "No weekly revenue entered yet";
+  updatePeriodLabel();
   $("#footer-date").textContent = `Updated ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date())}`;
   $("#error").hidden = true;
   if (!state.teams.some((team) => team.name === state.insightTeam)) state.insightTeam = rankings()[0]?.name || "";
@@ -63,6 +65,11 @@ function loadRows(rows) {
   insightSelect.replaceChildren(...state.teams.map((team) => new Option(team.name, team.name)));
   insightSelect.value = state.insightTeam;
   render();
+}
+
+function updatePeriodLabel() {
+  const week = state.weeks.find(({ index }) => String(index) === state.activePeriod);
+  $("#updated").textContent = `Showing ${week ? week.header.replace(/\s+Revenue$/i, "") : "all-time revenue"} · refreshed just now`;
 }
 
 function rankings() {
@@ -158,7 +165,7 @@ async function refresh() {
   } finally { button.disabled = false; }
 }
 
-$("#period").addEventListener("change", (event) => { state.activePeriod = event.target.value; render(); });
+$("#period").addEventListener("change", (event) => { state.activePeriod = event.target.value; updatePeriodLabel(); render(); });
 $("#search").addEventListener("input", render);
 $("#insight-team").addEventListener("change", (event) => { state.insightTeam = event.target.value; renderInsights(); });
 $("#refresh").addEventListener("click", refresh);

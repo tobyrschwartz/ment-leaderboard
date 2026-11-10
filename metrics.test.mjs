@@ -4,13 +4,14 @@ import vm from "node:vm";
 
 class Element {
   children = [];
+  listeners = {};
   textContent = "";
   value = "";
   hidden = false;
   replaceChildren(...children) { this.children = children; }
   append(...children) { this.children.push(...children); }
   add(option) { this.children.push(option); }
-  addEventListener() {}
+  addEventListener(event, listener) { this.listeners[event] = listener; }
   querySelector() { return new Element(); }
 }
 
@@ -51,3 +52,16 @@ assert.deepEqual(values("#social-metrics"), [
   "Instagram 31\ntiktok 1",
   "TikTok: N/AS\nSaved to fav: 90\nInstagram: 10"
 ]);
+
+const period = elements.get("#period");
+assert.match(elements.get("#updated").textContent, /Showing Week 11\/3/);
+period.listeners.change({ target: { value: "total" } });
+assert.match(elements.get("#updated").textContent, /Showing all-time revenue/);
+period.listeners.change({ target: { value: period.children[1].value } });
+assert.match(elements.get("#updated").textContent, /Showing Week 11\/3/);
+vm.runInContext(`loadRows([
+  ["Group Name", "Total Revenue", "Week 11/3 Revenue"],
+  ["Team A", "$125.00", "$25.00"]
+])`, context);
+assert.equal(period.value, period.children[1].value);
+assert.match(elements.get("#updated").textContent, /Showing Week 11\/3/);

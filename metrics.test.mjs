@@ -35,7 +35,8 @@ vm.runInContext(readFileSync(new URL("./app.js", import.meta.url), "utf8"), cont
 vm.runInContext(`loadRows([
   ["Group Name", "Total Revenue", "Week 11/3 Revenue", "Shopify Sessions", "Shopify Orders", "Shopify Top Traffic Source", "Shopify Conversion Rate", "Social Views", "Social Likes", "Social Comments", "Social Shares"],
   ["Team A", "$125.00", "$25.00", "1,234", "12", "Instagram", "2.5%", "4,000", "100", "8", "3"],
-  ["Team B", "$0.00", "", "", "", "", "", "", "", "", ""]
+  ["Team B", "$0.00", "", "", "", "", "", "", "", "", ""],
+  ["Team C", "$0.00", "", "", "", "", "", "TikTok: 9300\\nInstagram: 17,734", "Instagram: 340k TikTok: 406k", "Instagram 31, tiktok 1", "TikTok: N/AS\\n\\nSaved to fav: 90\\nInstagram: 10"]
 ])`, context);
 
 const values = (selector) => elements.get(selector).children.map((item) => item.children[1].textContent);
@@ -43,3 +44,10 @@ assert.deepEqual(values("#shopify-metrics"), ["1,234", "12", "Instagram", "$125.
 assert.deepEqual(values("#social-metrics"), ["4,000", "100", "8", "3"]);
 vm.runInContext(`state.insightTeam = "Team B"; renderInsights()`, context);
 assert.deepEqual(values("#social-metrics"), ["—", "—", "—", "—"]);
+vm.runInContext(`state.insightTeam = "Team C"; renderInsights()`, context);
+assert.deepEqual(values("#social-metrics"), [
+  "TikTok: 9300\nInstagram: 17,734",
+  "Instagram: 340k\nTikTok: 406k",
+  "Instagram 31\ntiktok 1",
+  "TikTok: N/AS\nSaved to fav: 90\nInstagram: 10"
+]);
